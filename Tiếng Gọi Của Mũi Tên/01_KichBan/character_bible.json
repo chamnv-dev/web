@@ -1,0 +1,38 @@
+[
+  {
+    "name": "KAI",
+    "role": "Thủ Lĩnh",
+    "key_trait": "Quyết đoán, Bảo thủ",
+    "motivation": "Bảo vệ bộ lạc bằng mọi giá, duy trì truyền thống.",
+    "default_behavior": "Gầm gừ, đứng thẳng, quan sát thận trọng, ra lệnh bằng cử chỉ.",
+    "visual_identity": "Lớn con, sẹo vằn vện, áo choàng lông thú dày, cầm giáo đá thô sơ.",
+    "archetype": "Lãnh đạo gia trưởng",
+    "fatal_flaw": "Cố chấp với cái cũ, sợ hãi thay đổi.",
+    "goal_external": "Đảm bảo nguồn sống và an toàn cho bộ lạc, đặc biệt khi khan hiếm.",
+    "goal_internal": "Duy trì niềm tin vào sức mạnh và phương pháp truyền thống của mình."
+  },
+  {
+    "name": "LYRA",
+    "role": "Kẻ Săn",
+    "key_trait": "Nhanh nhẹn, Thực dụng",
+    "motivation": "Tìm kiếm hiệu quả để sinh tồn, chứng minh giá trị bản thân.",
+    "default_behavior": "Quan sát kỹ môi trường, lẳng lặng thử nghiệm các kỹ thuật mới, ít nói.",
+    "visual_identity": "Thân hình gọn gàng nhưng săn chắc, bộ lông thú tối màu, mang theo cung tên cải tiến bằng sừng.",
+    "archetype": "Người tiên phong",
+    "fatal_flaw": "Thiếu kiên nhẫn, dễ hành động liều lĩnh khi bị nghi ngờ.",
+    "goal_external": "Săn được con mồi lớn và an toàn hơn, tìm giải pháp mới cho bộ lạc.",
+    "goal_internal": "Được công nhận năng lực, vượt qua sự bảo thủ của bộ lạc."
+  },
+  {
+    "name": "ELARA",
+    "role": "Người Vẽ",
+    "key_trait": "Tò mò, Sáng tạo",
+    "motivation": "Khám phá và ghi lại thế giới xung quanh, kết nối mọi người.",
+    "default_behavior": "Im lặng quan sát, ghi nhớ chi tiết, vẽ lên đá hoặc vách hang.",
+    "visual_identity": "Trẻ tuổi, đôi mắt sáng, luôn mang theo những viên đá màu hoặc than, da động vật mềm mại.",
+    "archetype": "Người kể chuyện",
+    "fatal_flaw": "Nhút nhát, khó thể hiện ý tưởng trước đám đông, dễ bị gạt bỏ.",
+    "goal_external": "Học hỏi kỹ năng sinh tồn, ghi chép lại kiến thức.",
+    "goal_internal": "Chia sẻ những gì mình thấy, tạo ra sự hiểu biết và đoàn kết."
+  }
+]

@@ -1,0 +1,90 @@
+{
+  "scene_id": "s07",
+  "objective": "Generate a short video clip for this scene based on screenplay and prompts.",
+  "persona": {
+    "role": "Creative Video Director",
+    "tone": "Cinematic and evocative",
+    "knowledge_level": "Expert in visual storytelling"
+  },
+  "constraints": {
+    "duration_seconds": 8,
+    "aspect_ratio": "16:9",
+    "resolution": "1920x1080",
+    "visual_style_tags": [
+      "cinematic",
+      "natural light",
+      "soft shadows"
+    ],
+    "camera": {
+      "fps": 24,
+      "lens_hint": "50mm look",
+      "stabilization": "steady tripod-like"
+    }
+  },
+  "assets": {
+    "images": {}
+  },
+  "hard_locks": {
+    "identity": "Keep the same face, body, and identity across scenes.",
+    "wardrobe": "Outfit consistency is required. Do NOT change outfit, color, or add accessories without instruction.",
+    "hair_makeup": "Keep hair and makeup consistent; do NOT change length or color unless explicitly instructed.",
+    "location": "Keep to single coherent environment; no random background swaps."
+  },
+  "character_details": "Primary talent remains visually consistent across all scenes.",
+  "setting_details": "Clean composition, minimal props, no clutter; coherent lighting per scene style.",
+  "key_action": "The tribe moves slowly across a barren mountainside, an air of desperation, Kai searches in vain, children are hungry.",
+  "camera_direction": [
+    {
+      "t": "0.0-2.0s",
+      "shot": "Establish subject & scene; clean composition; slow, steady motion."
+    },
+    {
+      "t": "2.0-4.4s",
+      "shot": "Key action / gesture; maintain framing consistency; avoid jump cuts."
+    },
+    {
+      "t": "4.4-6.4s",
+      "shot": "Detail emphasis; micro-movements; texture & highlights."
+    },
+    {
+      "t": "6.4-8.0s",
+      "shot": "Clear end beat; micro push-in or hold; leave space for on-screen text."
+    }
+  ],
+  "audio": {
+    "voiceover": {
+      "language": "vi",
+      "voice_hint": "neutral_narrative",
+      "pace": 1.0,
+      "text": "The tribe moves slowly across a barren mountainside, an air of desperation, Kai searches in vain, children are hungry."
+    },
+    "music_bed": "subtle, minimal, non-intrusive"
+  },
+  "graphics": {
+    "subtitles": {
+      "enabled": true,
+      "language": "vi",
+      "style": "clean small caps, bottom-safe"
+    },
+    "on_screen_text": []
+  },
+  "negatives": [
+    "Do NOT change character identity, outfit, or location without instruction.",
+    "Avoid jarring cuts or random background swaps.",
+    "No brand logos unless present in references.",
+    "No unrealistic X-ray views; use graphic overlays only."
+  ],
+  "generation": {
+    "seed": 1648024675,
+    "copies": 1
+  },
+  "localization": {
+    "vi": {
+      "prompt": "Bộ lạc di chuyển chậm chạp trên sườn núi cằn cỗi, không khí tuyệt vọng, Kai tìm kiếm vô vọng, trẻ con đói khát."
+    },
+    "tgt": {
+      "lang": "vi",
+      "prompt": "The tribe moves slowly across a barren mountainside, an air of desperation, Kai searches in vain, children are hungry."
+    }
+  }
+}
