@@ -817,16 +817,30 @@ class VideoBanHangPanel(QWidget):
             self.btn_script.setText("📝 Viết kịch bản")
     
     def _on_script_error(self, error_msg):
-        """Script error"""
-        if error_msg.startswith("MissingAPIKey:"):
-            QMessageBox.warning(self, "Thiếu API Key", 
-                              "Chưa nhập Google API Key trong tab Cài đặt.")
-            self._append_log("❌ Thiếu Google API Key")
+        """Script error with retry option"""
+        self._append_log(f"❌ {error_msg}")
+        
+        # Create custom dialog with retry button
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Lỗi tạo kịch bản")
+        msg_box.setIcon(QMessageBox.Critical)
+        msg_box.setText(error_msg)
+        
+        # Add buttons
+        retry_btn = msg_box.addButton("🔄 Thử lại", QMessageBox.AcceptRole)
+        cancel_btn = msg_box.addButton("Đóng", QMessageBox.RejectRole)
+        
+        msg_box.exec_()
+        
+        # Check which button was clicked
+        if msg_box.clickedButton() == retry_btn:
+            # Retry the script generation
+            self._append_log("🔄 Thử lại tạo kịch bản...")
+            self._on_write_script()
         else:
-            QMessageBox.critical(self, "Lỗi", error_msg)
-            self._append_log(f"❌ Lỗi: {error_msg}")
-        self.btn_script.setEnabled(True)
-        self.btn_script.setText("📝 Viết kịch bản")
+            # Just reset the button state
+            self.btn_script.setEnabled(True)
+            self.btn_script.setText("📝 Viết kịch bản")
     
     def _display_scene_cards(self, scenes):
         """Display scene cards"""

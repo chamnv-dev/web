@@ -40,6 +40,32 @@ class ScriptWorker(QThread):
             self.done.emit(result)
             
         except Exception as e:
-            # Include exception type name for better error classification
+            # Provide user-friendly error messages
             error_type = type(e).__name__
-            self.error.emit(f"{error_type}: {str(e)}")
+            error_str = str(e)
+            
+            # Format error message based on type
+            if error_type == "JSONDecodeError":
+                user_msg = (
+                    "❌ Lỗi phân tích phản hồi từ AI\n\n"
+                    "AI trả về dữ liệu không hợp lệ. Có thể do:\n"
+                    "• Nội dung quá dài (giảm xuống < 5000 ký tự)\n"
+                    "• Ký tự đặc biệt không hợp lệ\n"
+                    "• Lỗi tạm thời từ AI\n\n"
+                    f"Chi tiết: {error_str[:200]}"
+                )
+            elif error_type == "MissingAPIKey":
+                user_msg = (
+                    "❌ Thiếu API Key\n\n"
+                    "Vui lòng cấu hình Google API Key trong tab Cài đặt."
+                )
+            elif "timeout" in error_str.lower() or "timed out" in error_str.lower():
+                user_msg = (
+                    "❌ Hết thời gian chờ\n\n"
+                    "Kết nối đến AI mất quá nhiều thời gian.\n"
+                    "Vui lòng kiểm tra kết nối mạng và thử lại."
+                )
+            else:
+                user_msg = f"❌ Lỗi: {error_type}\n\n{error_str[:300]}"
+            
+            self.error.emit(user_msg)
