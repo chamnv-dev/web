@@ -34,6 +34,9 @@ FONT_INPUT.setPixelSize(12)
 THUMBNAIL_SIZE = 60
 MODEL_IMG = 128
 
+# Colors
+COLOR_PRIMARY_BLUE = "#1976D2"
+
 
 class SceneCardWidget(QFrame):
     """Scene card widget with image preview and action buttons"""
@@ -599,7 +602,7 @@ class VideoBanHangPanel(QWidget):
         return scroll
     
     def _build_social_tab(self):
-        """Build social media tab"""
+        """Build social media tab with prominent titles and copy buttons"""
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         
@@ -614,8 +617,10 @@ class VideoBanHangPanel(QWidget):
             
             card_layout = QVBoxLayout(version_card)
             
-            lbl_caption = QLabel("Caption:")
-            lbl_caption.setFont(QFont("Segoe UI", 12, QFont.Bold))
+            # Caption section with prominent title (18px bold)
+            lbl_caption = QLabel("📝 Caption")
+            lbl_caption.setFont(QFont("Segoe UI", 18, QFont.Bold))
+            lbl_caption.setStyleSheet(f"color: {COLOR_PRIMARY_BLUE}; margin-top: 8px;")
             card_layout.addWidget(lbl_caption)
             
             ed_caption = QTextEdit()
@@ -623,18 +628,47 @@ class VideoBanHangPanel(QWidget):
             ed_caption.setReadOnly(True)
             card_layout.addWidget(ed_caption)
             
-            btn_copy = QPushButton("📋 Copy Caption")
-            btn_copy.clicked.connect(lambda _, e=ed_caption: self._copy_to_clipboard(e.toPlainText()))
-            card_layout.addWidget(btn_copy)
+            btn_copy_caption = QPushButton("📋 Copy Caption")
+            btn_copy_caption.clicked.connect(lambda _, e=ed_caption: self._copy_to_clipboard(e.toPlainText()))
+            card_layout.addWidget(btn_copy_caption)
             
-            lbl_hashtags = QLabel("Hashtags:")
-            lbl_hashtags.setFont(QFont("Segoe UI", 12, QFont.Bold))
+            # Hashtags section with prominent title (18px bold)
+            lbl_hashtags = QLabel("#️⃣ Hashtags")
+            lbl_hashtags.setFont(QFont("Segoe UI", 18, QFont.Bold))
+            lbl_hashtags.setStyleSheet(f"color: {COLOR_PRIMARY_BLUE}; margin-top: 16px;")
             card_layout.addWidget(lbl_hashtags)
             
             ed_hashtags = QTextEdit()
             ed_hashtags.setMaximumHeight(60)
             ed_hashtags.setReadOnly(True)
             card_layout.addWidget(ed_hashtags)
+            
+            btn_copy_hashtags = QPushButton("📋 Copy Hashtags")
+            btn_copy_hashtags.clicked.connect(lambda _, e=ed_hashtags: self._copy_to_clipboard(e.toPlainText()))
+            card_layout.addWidget(btn_copy_hashtags)
+            
+            # Copy All button
+            btn_copy_all = QPushButton("📋 Copy All (Caption + Hashtags)")
+            btn_copy_all.setStyleSheet(f"""
+                QPushButton {{
+                    background: {COLOR_PRIMARY_BLUE};
+                    color: white;
+                    font-weight: bold;
+                    padding: 10px;
+                    border-radius: 4px;
+                }}
+                QPushButton:hover {{
+                    background: #1565C0;
+                }}
+            """)
+            def copy_all_func(cap_edit, hash_edit):
+                caption_text = cap_edit.toPlainText()
+                hashtags_text = hash_edit.toPlainText()
+                combined = f"{caption_text}\n\n{hashtags_text}"
+                self._copy_to_clipboard(combined)
+            
+            btn_copy_all.clicked.connect(lambda _, c=ed_caption, h=ed_hashtags: copy_all_func(c, h))
+            card_layout.addWidget(btn_copy_all)
             
             self.social_version_widgets.append({
                 'widget': version_card,
@@ -817,16 +851,30 @@ class VideoBanHangPanel(QWidget):
             self.btn_script.setText("📝 Viết kịch bản")
     
     def _on_script_error(self, error_msg):
-        """Script error"""
-        if error_msg.startswith("MissingAPIKey:"):
-            QMessageBox.warning(self, "Thiếu API Key", 
-                              "Chưa nhập Google API Key trong tab Cài đặt.")
-            self._append_log("❌ Thiếu Google API Key")
+        """Script error with retry option"""
+        self._append_log(f"❌ {error_msg}")
+        
+        # Create custom dialog with retry button
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Lỗi tạo kịch bản")
+        msg_box.setIcon(QMessageBox.Critical)
+        msg_box.setText(error_msg)
+        
+        # Add buttons
+        retry_btn = msg_box.addButton("🔄 Thử lại", QMessageBox.AcceptRole)
+        cancel_btn = msg_box.addButton("Đóng", QMessageBox.RejectRole)
+        
+        msg_box.exec_()
+        
+        # Check which button was clicked
+        if msg_box.clickedButton() == retry_btn:
+            # Retry the script generation
+            self._append_log("🔄 Thử lại tạo kịch bản...")
+            self._on_write_script()
         else:
-            QMessageBox.critical(self, "Lỗi", error_msg)
-            self._append_log(f"❌ Lỗi: {error_msg}")
-        self.btn_script.setEnabled(True)
-        self.btn_script.setText("📝 Viết kịch bản")
+            # Just reset the button state
+            self.btn_script.setEnabled(True)
+            self.btn_script.setText("📝 Viết kịch bản")
     
     def _display_scene_cards(self, scenes):
         """Display scene cards"""

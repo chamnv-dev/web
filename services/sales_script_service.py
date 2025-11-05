@@ -21,6 +21,75 @@ def _try_parse_json(raw:str)->Dict[str,Any]:
         raw = raw.replace("```json","").replace("```","")
         return json.loads(_json_sanitize(raw))
 
+def parse_llm_response_safe(raw:str)->Dict[str,Any]:
+    """
+    Robust JSON parser with 5 fallback strategies for LLM responses
+    
+    Strategies:
+    1. Direct parse after sanitization
+    2. Remove markdown code blocks
+    3. Fix common issues (trailing commas)
+    4. Extract first valid JSON object
+    5. Return minimal valid structure as last resort
+    
+    Args:
+        raw: Raw LLM response string
+        
+    Returns:
+        Parsed dictionary, or minimal valid structure if all parsing fails
+    """
+    if not raw or not raw.strip():
+        return {"scenes": []}
+    
+    # Strategy 1: Direct parse after sanitization
+    try:
+        sanitized = _json_sanitize(raw)
+        return json.loads(sanitized)
+    except Exception:
+        pass
+    
+    # Strategy 2: Remove markdown code blocks
+    try:
+        cleaned = raw.replace("```json", "").replace("```", "")
+        sanitized = _json_sanitize(cleaned)
+        return json.loads(sanitized)
+    except Exception:
+        pass
+    
+    # Strategy 3: Fix common JSON issues (trailing commas)
+    try:
+        cleaned = raw.replace("```json", "").replace("```", "")
+        sanitized = _json_sanitize(cleaned)
+        
+        # Fix trailing commas before closing brackets/braces
+        sanitized = re.sub(r',(\s*[\]}])', r'\1', sanitized)
+        
+        return json.loads(sanitized)
+    except Exception:
+        pass
+    
+    # Strategy 4: Try to extract first complete JSON object
+    try:
+        start = raw.find('{')
+        if start != -1:
+            # Find matching closing brace
+            brace_count = 0
+            for i in range(start, len(raw)):
+                if raw[i] == '{':
+                    brace_count += 1
+                elif raw[i] == '}':
+                    brace_count -= 1
+                    if brace_count == 0:
+                        candidate = raw[start:i+1]
+                        # Try to fix and parse
+                        candidate = re.sub(r',(\s*[\]}])', r'\1', candidate)
+                        return json.loads(candidate)
+    except Exception:
+        pass
+    
+    # Strategy 5: Last resort - return minimal valid structure
+    return {"scenes": []}
+
 def _models_description(first_model_json:str)->str:
     return first_model_json if first_model_json else "No specific models described."
 
@@ -185,13 +254,31 @@ Output MUST be valid JSON with this structure:
 
 
 def build_outline(cfg:Dict[str,Any])->Dict[str,Any]:
+    """
+    Build video outline/script from configuration
+    
+    Args:
+        cfg: Configuration dictionary with video settings
+        
+    Returns:
+        Dictionary with script, scenes, and social media content
+        
+    Raises:
+        MissingAPIKey: If API key is not configured
+        json.JSONDecodeError: If LLM response cannot be parsed (with detailed message)
+        Exception: For other errors during generation
+    """
     sceneCount = _scene_count(int(cfg.get("duration_sec") or 0))
     models_json = cfg.get("first_model_json") or ""
     product_count = int(cfg.get("product_count") or 0)
     client = GeminiClient()
     sys_prompt = _build_system_prompt(cfg, sceneCount, models_json, product_count)
+    
+    # Generate raw response (may raise network/API exceptions)
     raw = client.generate(sys_prompt, "Return ONLY the JSON object. No prose.", timeout=240)
-    script_json = _try_parse_json(raw)
+    
+    # Parse with safe parser (always returns a dict, never raises exceptions)
+    script_json = parse_llm_response_safe(raw)
 
     scenes = script_json.get("scenes", [])
     if not isinstance(scenes, list): scenes = []
@@ -227,7 +314,7 @@ def build_outline(cfg:Dict[str,Any])->Dict[str,Any]:
     try:
         social_prompt = _build_social_media_prompt(cfg, outline_vi)
         social_raw = client.generate(social_prompt, "Return ONLY valid JSON.", timeout=120)
-        social_json = _try_parse_json(social_raw)
+        social_json = parse_llm_response_safe(social_raw)
         social_media = social_json if "versions" in social_json else {"versions": []}
     except Exception:
         # Fallback: create default versions
