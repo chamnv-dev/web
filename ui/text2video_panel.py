@@ -112,24 +112,27 @@ class Text2VideoPane(QWidget):
         st = self._cards_state.get(scene, {})
         vi = st.get('vi','').strip()
         tgt = st.get('tgt','').strip()
-        lines = [f'Cảnh {scene}']
+        
+        # Use rich text with larger, bold, blue scene number (20px)
+        lines = [f'<span style="font-size:20px; font-weight:bold; color:#1976D2;">Cảnh {scene}</span>']
+        
         if tgt or vi:
-            lines.append('— PROMPT (đích/VI) —')
-            if tgt: lines.append(tgt)
-            if vi: lines.append(vi)
+            lines.append('<b>— PROMPT (đích/VI) —</b>')
+            if tgt: lines.append(tgt[:200] + ('...' if len(tgt) > 200 else ''))
+            if vi: lines.append(vi[:200] + ('...' if len(vi) > 200 else ''))
         vids = st.get('videos', {})
         if vids:
-            lines.append('— Video —')
+            lines.append('<b>— Video —</b>')
             for copy, info in sorted(vids.items()):
                 tag = f"Video {copy}: {info.get('status','?')}"
                 if info.get('completed_at'):
                     tag += f" — hoàn tất: {info['completed_at']}"
                 if info.get('path'):
-                    tag += f"\n📥 {info['path']}"
+                    tag += f"<br/>📥 {info['path']}"
                 elif info.get('url'):
-                    tag += f"\n🔗 {info['url']}"
+                    tag += f"<br/>🔗 {info['url']}"
                 lines.append(tag)
-        return '\n'.join(lines)
+        return '<br/>'.join(lines)
 
     def _apply_styles(self):
         self.setStyleSheet("""
@@ -223,6 +226,13 @@ class Text2VideoPane(QWidget):
             self._cards_state[i] = {'vi': vi, 'tgt': tgt, 'thumb':'', 'videos':{}}
             it = QListWidgetItem(self._render_card_text(i))
             it.setData(Qt.UserRole, ('scene', i))
+            
+            # Set alternating background colors (#FFFFFF / #E3F2FD)
+            if i % 2 == 0:
+                it.setBackground(QColor("#E3F2FD"))  # Light blue for even scenes
+            else:
+                it.setBackground(QColor("#FFFFFF"))  # White for odd scenes
+            
             self.cards.addItem(it)
 
         # fill table & save prompts
@@ -272,6 +282,11 @@ class Text2VideoPane(QWidget):
         v  = st['videos'].setdefault(copy, {})
         for k in ('status','url','path','thumb','completed_at'):
             if data.get(k): v[k] = data.get(k)
+        
+        # Log video download path when available
+        if data.get('path'):
+            self._append_log(f"[INFO] Video {scene}-{copy} đã tải: {data['path']}")
+        
         if data.get('thumb') and os.path.isfile(data['thumb']):
             st['thumb'] = data['thumb']
         for i in range(self.cards.count()):
@@ -283,8 +298,17 @@ class Text2VideoPane(QWidget):
                     from PyQt5.QtGui import QIcon, QPixmap
                     pix=QPixmap(st['thumb']).scaled(self.cards.iconSize(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     it.setIcon(QIcon(pix))
+                
+                # Set background color based on status, or preserve alternating colors
                 col = self._t2v_status_color(v.get('status'))
-                if col: it.setBackground(col)
+                if col:
+                    it.setBackground(col)
+                else:
+                    # Preserve alternating colors when no status color
+                    if scene % 2 == 0:
+                        it.setBackground(QColor("#E3F2FD"))  # Light blue for even scenes
+                    else:
+                        it.setBackground(QColor("#FFFFFF"))  # White for odd scenes
                 break
 
     def _t2v_status_color(self, status):

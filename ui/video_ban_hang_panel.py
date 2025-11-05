@@ -599,7 +599,7 @@ class VideoBanHangPanel(QWidget):
         return scroll
     
     def _build_social_tab(self):
-        """Build social media tab"""
+        """Build social media tab with prominent titles and copy buttons"""
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         
@@ -614,8 +614,10 @@ class VideoBanHangPanel(QWidget):
             
             card_layout = QVBoxLayout(version_card)
             
-            lbl_caption = QLabel("Caption:")
-            lbl_caption.setFont(QFont("Segoe UI", 12, QFont.Bold))
+            # Caption section with prominent title (18px bold)
+            lbl_caption = QLabel("📝 Caption")
+            lbl_caption.setFont(QFont("Segoe UI", 18, QFont.Bold))
+            lbl_caption.setStyleSheet("color: #1976D2; margin-top: 8px;")
             card_layout.addWidget(lbl_caption)
             
             ed_caption = QTextEdit()
@@ -623,18 +625,47 @@ class VideoBanHangPanel(QWidget):
             ed_caption.setReadOnly(True)
             card_layout.addWidget(ed_caption)
             
-            btn_copy = QPushButton("📋 Copy Caption")
-            btn_copy.clicked.connect(lambda _, e=ed_caption: self._copy_to_clipboard(e.toPlainText()))
-            card_layout.addWidget(btn_copy)
+            btn_copy_caption = QPushButton("📋 Copy Caption")
+            btn_copy_caption.clicked.connect(lambda _, e=ed_caption: self._copy_to_clipboard(e.toPlainText()))
+            card_layout.addWidget(btn_copy_caption)
             
-            lbl_hashtags = QLabel("Hashtags:")
-            lbl_hashtags.setFont(QFont("Segoe UI", 12, QFont.Bold))
+            # Hashtags section with prominent title (18px bold)
+            lbl_hashtags = QLabel("#️⃣ Hashtags")
+            lbl_hashtags.setFont(QFont("Segoe UI", 18, QFont.Bold))
+            lbl_hashtags.setStyleSheet("color: #1976D2; margin-top: 16px;")
             card_layout.addWidget(lbl_hashtags)
             
             ed_hashtags = QTextEdit()
             ed_hashtags.setMaximumHeight(60)
             ed_hashtags.setReadOnly(True)
             card_layout.addWidget(ed_hashtags)
+            
+            btn_copy_hashtags = QPushButton("📋 Copy Hashtags")
+            btn_copy_hashtags.clicked.connect(lambda _, e=ed_hashtags: self._copy_to_clipboard(e.toPlainText()))
+            card_layout.addWidget(btn_copy_hashtags)
+            
+            # Copy All button
+            btn_copy_all = QPushButton("📋 Copy All (Caption + Hashtags)")
+            btn_copy_all.setStyleSheet("""
+                QPushButton {
+                    background: #1976D2;
+                    color: white;
+                    font-weight: bold;
+                    padding: 10px;
+                    border-radius: 4px;
+                }
+                QPushButton:hover {
+                    background: #1565C0;
+                }
+            """)
+            def copy_all_func(cap_edit, hash_edit):
+                caption_text = cap_edit.toPlainText()
+                hashtags_text = hash_edit.toPlainText()
+                combined = f"{caption_text}\n\n{hashtags_text}"
+                self._copy_to_clipboard(combined)
+            
+            btn_copy_all.clicked.connect(lambda _, c=ed_caption, h=ed_hashtags: copy_all_func(c, h))
+            card_layout.addWidget(btn_copy_all)
             
             self.social_version_widgets.append({
                 'widget': version_card,
