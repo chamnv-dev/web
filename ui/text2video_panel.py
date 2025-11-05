@@ -10,6 +10,9 @@ from PyQt5.Qt import QDesktopServices
 from utils import config as cfg
 from .text2video_panel_impl import _Worker, _ASPECT_MAP, _LANGS, _VIDEO_MODELS, build_prompt_json
 
+# Constants
+PROMPT_DISPLAY_MAX_LENGTH = 200
+
 class Text2VideoPane(QWidget):
     def __init__(self, parent=None):
         self._cards_state = {}  # scene->data
@@ -118,8 +121,10 @@ class Text2VideoPane(QWidget):
         
         if tgt or vi:
             lines.append('<b>— PROMPT (đích/VI) —</b>')
-            if tgt: lines.append(tgt[:200] + ('...' if len(tgt) > 200 else ''))
-            if vi: lines.append(vi[:200] + ('...' if len(vi) > 200 else ''))
+            if tgt: 
+                lines.append(tgt[:PROMPT_DISPLAY_MAX_LENGTH] + ('...' if len(tgt) > PROMPT_DISPLAY_MAX_LENGTH else ''))
+            if vi: 
+                lines.append(vi[:PROMPT_DISPLAY_MAX_LENGTH] + ('...' if len(vi) > PROMPT_DISPLAY_MAX_LENGTH else ''))
         vids = st.get('videos', {})
         if vids:
             lines.append('<b>— Video —</b>')

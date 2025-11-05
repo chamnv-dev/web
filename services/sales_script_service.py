@@ -28,7 +28,7 @@ def parse_llm_response_safe(raw:str)->Dict[str,Any]:
     Strategies:
     1. Direct parse after sanitization
     2. Remove markdown code blocks
-    3. Fix common issues (trailing commas, unescaped quotes)
+    3. Fix common issues (trailing commas)
     4. Extract first valid JSON object
     5. Return minimal valid structure as last resort
     
@@ -56,16 +56,13 @@ def parse_llm_response_safe(raw:str)->Dict[str,Any]:
     except Exception:
         pass
     
-    # Strategy 3: Fix common JSON issues
+    # Strategy 3: Fix common JSON issues (trailing commas)
     try:
         cleaned = raw.replace("```json", "").replace("```", "")
         sanitized = _json_sanitize(cleaned)
         
         # Fix trailing commas before closing brackets/braces
         sanitized = re.sub(r',(\s*[\]}])', r'\1', sanitized)
-        
-        # Fix unescaped quotes in strings (basic attempt)
-        # This is tricky and might not catch all cases
         
         return json.loads(sanitized)
     except Exception:
@@ -280,14 +277,7 @@ def build_outline(cfg:Dict[str,Any])->Dict[str,Any]:
     try:
         raw = client.generate(sys_prompt, "Return ONLY the JSON object. No prose.", timeout=240)
         script_json = parse_llm_response_safe(raw)
-        
-        # Validate that we got a valid response
-        if not script_json or not isinstance(script_json, dict):
-            raise json.JSONDecodeError(
-                "LLM returned invalid JSON structure",
-                raw[:100] if raw else "",
-                0
-            )
+        # Note: parse_llm_response_safe always returns a dict, guaranteed
     except json.JSONDecodeError as e:
         # Re-raise with more helpful error message
         error_msg = (

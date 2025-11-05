@@ -4,6 +4,10 @@ Script Worker - Non-blocking script generation using QThread
 """
 from PyQt5.QtCore import QThread, pyqtSignal
 
+# Constants for error message truncation
+ERROR_DETAIL_MAX_LENGTH = 200
+ERROR_GENERIC_MAX_LENGTH = 300
+
 
 class ScriptWorker(QThread):
     """
@@ -52,7 +56,7 @@ class ScriptWorker(QThread):
                     "• Nội dung quá dài (giảm xuống < 5000 ký tự)\n"
                     "• Ký tự đặc biệt không hợp lệ\n"
                     "• Lỗi tạm thời từ AI\n\n"
-                    f"Chi tiết: {error_str[:200]}"
+                    f"Chi tiết: {error_str[:ERROR_DETAIL_MAX_LENGTH]}"
                 )
             elif error_type == "MissingAPIKey":
                 user_msg = (
@@ -66,6 +70,6 @@ class ScriptWorker(QThread):
                     "Vui lòng kiểm tra kết nối mạng và thử lại."
                 )
             else:
-                user_msg = f"❌ Lỗi: {error_type}\n\n{error_str[:300]}"
+                user_msg = f"❌ Lỗi: {error_type}\n\n{error_str[:ERROR_GENERIC_MAX_LENGTH]}"
             
             self.error.emit(user_msg)
