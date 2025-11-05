@@ -274,18 +274,11 @@ def build_outline(cfg:Dict[str,Any])->Dict[str,Any]:
     client = GeminiClient()
     sys_prompt = _build_system_prompt(cfg, sceneCount, models_json, product_count)
     
-    try:
-        raw = client.generate(sys_prompt, "Return ONLY the JSON object. No prose.", timeout=240)
-        script_json = parse_llm_response_safe(raw)
-        # Note: parse_llm_response_safe always returns a dict, guaranteed
-    except json.JSONDecodeError as e:
-        # Re-raise with more helpful error message
-        error_msg = (
-            f"Không thể phân tích phản hồi từ LLM. "
-            f"Lỗi: {str(e)}. "
-            f"Vui lòng thử lại hoặc giảm độ dài nội dung."
-        )
-        raise json.JSONDecodeError(error_msg, e.doc, e.pos) from e
+    # Generate raw response (may raise network/API exceptions)
+    raw = client.generate(sys_prompt, "Return ONLY the JSON object. No prose.", timeout=240)
+    
+    # Parse with safe parser (always returns a dict, never raises exceptions)
+    script_json = parse_llm_response_safe(raw)
 
     scenes = script_json.get("scenes", [])
     if not isinstance(scenes, list): scenes = []

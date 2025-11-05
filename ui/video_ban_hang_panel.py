@@ -34,6 +34,9 @@ FONT_INPUT.setPixelSize(12)
 THUMBNAIL_SIZE = 60
 MODEL_IMG = 128
 
+# Colors
+COLOR_PRIMARY_BLUE = "#1976D2"
+
 
 class SceneCardWidget(QFrame):
     """Scene card widget with image preview and action buttons"""
@@ -617,7 +620,7 @@ class VideoBanHangPanel(QWidget):
             # Caption section with prominent title (18px bold)
             lbl_caption = QLabel("📝 Caption")
             lbl_caption.setFont(QFont("Segoe UI", 18, QFont.Bold))
-            lbl_caption.setStyleSheet("color: #1976D2; margin-top: 8px;")
+            lbl_caption.setStyleSheet(f"color: {COLOR_PRIMARY_BLUE}; margin-top: 8px;")
             card_layout.addWidget(lbl_caption)
             
             ed_caption = QTextEdit()
@@ -632,7 +635,7 @@ class VideoBanHangPanel(QWidget):
             # Hashtags section with prominent title (18px bold)
             lbl_hashtags = QLabel("#️⃣ Hashtags")
             lbl_hashtags.setFont(QFont("Segoe UI", 18, QFont.Bold))
-            lbl_hashtags.setStyleSheet("color: #1976D2; margin-top: 16px;")
+            lbl_hashtags.setStyleSheet(f"color: {COLOR_PRIMARY_BLUE}; margin-top: 16px;")
             card_layout.addWidget(lbl_hashtags)
             
             ed_hashtags = QTextEdit()
@@ -646,17 +649,17 @@ class VideoBanHangPanel(QWidget):
             
             # Copy All button
             btn_copy_all = QPushButton("📋 Copy All (Caption + Hashtags)")
-            btn_copy_all.setStyleSheet("""
-                QPushButton {
-                    background: #1976D2;
+            btn_copy_all.setStyleSheet(f"""
+                QPushButton {{
+                    background: {COLOR_PRIMARY_BLUE};
                     color: white;
                     font-weight: bold;
                     padding: 10px;
                     border-radius: 4px;
-                }
-                QPushButton:hover {
+                }}
+                QPushButton:hover {{
                     background: #1565C0;
-                }
+                }}
             """)
             def copy_all_func(cap_edit, hash_edit):
                 caption_text = cap_edit.toPlainText()

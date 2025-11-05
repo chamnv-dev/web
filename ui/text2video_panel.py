@@ -12,6 +12,10 @@ from .text2video_panel_impl import _Worker, _ASPECT_MAP, _LANGS, _VIDEO_MODELS, 
 
 # Constants
 PROMPT_DISPLAY_MAX_LENGTH = 200
+COLOR_PRIMARY_BLUE = "#1976D2"
+COLOR_BG_EVEN = "#E3F2FD"  # Light blue for even scenes
+COLOR_BG_ODD = "#FFFFFF"   # White for odd scenes
+SCENE_NUMBER_FONT_SIZE = 20
 
 class Text2VideoPane(QWidget):
     def __init__(self, parent=None):
@@ -116,8 +120,8 @@ class Text2VideoPane(QWidget):
         vi = st.get('vi','').strip()
         tgt = st.get('tgt','').strip()
         
-        # Use rich text with larger, bold, blue scene number (20px)
-        lines = [f'<span style="font-size:20px; font-weight:bold; color:#1976D2;">Cảnh {scene}</span>']
+        # Use rich text with larger, bold, blue scene number
+        lines = [f'<span style="font-size:{SCENE_NUMBER_FONT_SIZE}px; font-weight:bold; color:{COLOR_PRIMARY_BLUE};">Cảnh {scene}</span>']
         
         if tgt or vi:
             lines.append('<b>— PROMPT (đích/VI) —</b>')
@@ -232,11 +236,11 @@ class Text2VideoPane(QWidget):
             it = QListWidgetItem(self._render_card_text(i))
             it.setData(Qt.UserRole, ('scene', i))
             
-            # Set alternating background colors (#FFFFFF / #E3F2FD)
+            # Set alternating background colors
             if i % 2 == 0:
-                it.setBackground(QColor("#E3F2FD"))  # Light blue for even scenes
+                it.setBackground(QColor(COLOR_BG_EVEN))  # Light blue for even scenes
             else:
-                it.setBackground(QColor("#FFFFFF"))  # White for odd scenes
+                it.setBackground(QColor(COLOR_BG_ODD))  # White for odd scenes
             
             self.cards.addItem(it)
 
@@ -311,9 +315,9 @@ class Text2VideoPane(QWidget):
                 else:
                     # Preserve alternating colors when no status color
                     if scene % 2 == 0:
-                        it.setBackground(QColor("#E3F2FD"))  # Light blue for even scenes
+                        it.setBackground(QColor(COLOR_BG_EVEN))  # Light blue for even scenes
                     else:
-                        it.setBackground(QColor("#FFFFFF"))  # White for odd scenes
+                        it.setBackground(QColor(COLOR_BG_ODD))  # White for odd scenes
                 break
 
     def _t2v_status_color(self, status):
